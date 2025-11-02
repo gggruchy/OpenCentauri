@@ -58,14 +58,19 @@ fn main() {
 			println!("Let process buffer......");
 		}
         let process_buffer = |buffer: &[u8]| {
+			
             for message in buffer.split(|&b| b == 0) {
+
                 if !message.is_empty() {
                     let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
 					if debug_mode {
-						println!("Printing...");
+						println!("Printing message...");
 					}
                     println!("{}: {}", timestamp, String::from_utf8_lossy(message).trim_end());
                 }
+				if debug_mode {
+					println!("Empty message.");
+				}
             }
         };
 		
@@ -75,6 +80,9 @@ fn main() {
 			}
             process_buffer(&log_buffer[read_ptr..write_ptr]);
         } else { // write_ptr < read_ptr, wrapped around
+			if debug_mode {
+				println!("read buffer started...");
+			}
             process_buffer(&log_buffer[read_ptr..]);
             process_buffer(&log_buffer[4..write_ptr]);
         }
