@@ -51,6 +51,9 @@ fn main() {
         let write_ptr = u32::from_le_bytes(log_buffer[0..4].try_into().unwrap()) as usize;
 	
         if write_ptr == read_ptr {
+			if debug_mode {
+				println!("write buffer still read buffer, sleep.........");
+			}
             std::thread::sleep(Duration::from_millis(100));
             continue;
         }
@@ -78,7 +81,7 @@ fn main() {
 			if debug_mode {
 				println!("write buffer started...");
 			}
-            process_buffer(&log_buffer[read_ptr..write_ptr]);
+            //process_buffer(&log_buffer[read_ptr..write_ptr]);
         } else { // write_ptr < read_ptr, wrapped around
 			if debug_mode {
 				println!("read buffer started...");
