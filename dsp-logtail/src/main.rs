@@ -32,6 +32,7 @@ fn hexdump(buffer: &[u8]) {
 fn main() {
     let args: Vec<String> = env::args().collect();
     let dump_mode = args.iter().any(|arg| arg == "-dump");
+	let debug_mode = args.iter().any(|arg| arg == "-debug");
 
     let log_buffer = sharespace::mmap_log_buffer();
 
@@ -44,17 +45,25 @@ fn main() {
     let mut read_ptr = 4;
 
     loop {
+		if dump_mode {
+			println!("Let write ptr......");
+		}
         let write_ptr = u32::from_le_bytes(log_buffer[0..4].try_into().unwrap()) as usize;
-
+	
         if write_ptr == read_ptr {
             std::thread::sleep(Duration::from_millis(100));
             continue;
         }
-
+		if dump_mode {
+			println!("Let process buffer......");
+		}
         let process_buffer = |buffer: &[u8]| {
             for message in buffer.split(|&b| b == 0) {
                 if !message.is_empty() {
                     let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
+					if dump_mode {
+						println!("Printing...");
+					}
                     println!("{}: {}", timestamp, String::from_utf8_lossy(message).trim_end());
                 }
             }
