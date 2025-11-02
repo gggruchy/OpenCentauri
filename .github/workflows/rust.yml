@@ -1,0 +1,36 @@
+name: build-dsp-logtail
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - pdlog
+    paths:
+      - "dsp-logtail/**"
+
+jobs:
+  release:
+    name: Release - ${{ matrix.platform.os-name }}
+    strategy:
+      matrix:
+        platform:
+          - os-name: Linux-armv7
+            runs-on: ubuntu-24.04
+            target: armv7-unknown-linux-musleabihf
+
+    runs-on: ${{ matrix.platform.runs-on }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v1
+        with:
+          command: build
+          target: ${{ matrix.platform.target }}
+          args: "--locked --release"
+          strip: true
+          working-directory: dsp-logtail
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsp-logtail-${{ matrix.platform.os-name }}
+          path: dsp-logtail/target/${{ matrix.platform.target }}/release/dsp-logtail
